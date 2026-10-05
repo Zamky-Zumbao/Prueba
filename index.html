@@ -102,6 +102,35 @@
   }
   .info-card p { font-size: 13px; color: var(--texto-gris); line-height: 1.6; }
 
+  /* ====== AVISO DE ENVÍO ====== */
+  .aviso-envio {
+    background: linear-gradient(135deg, #eaf2fc 0%, #f0f7ff 100%);
+    border-left: 5px solid var(--azul-lascondes);
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--texto-oscuro);
+    line-height: 1.7;
+  }
+  .aviso-envio strong { color: var(--azul-lascondes); }
+  .aviso-envio .icono {
+    display: inline-block;
+    font-size: 18px;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .aviso-envio .dato {
+    display: block;
+    background: white;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-top: 8px;
+    font-size: 13px;
+    border: 1px solid var(--borde-suave);
+  }
+  .aviso-envio .dato strong { color: var(--azul-lascondes); }
+
   .form-row { margin-bottom: 14px; }
   .form-row label {
     display: block;
@@ -230,6 +259,8 @@
     width: 100%;
     text-align: center;
     box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    max-height: 90vh;
+    overflow-y: auto;
   }
   .modal-icono { font-size: 52px; margin-bottom: 12px; }
   .modal h2 { font-size: 20px; color: var(--azul-lascondes); margin-bottom: 8px; }
@@ -270,7 +301,7 @@
   .btn-mail { background: #EA4335; }
   .btn-cerrar { background: #e2e8f0; color: var(--texto-oscuro); font-size: 14px; }
 
-  .destacado-correo {
+  .destacado-destinatario {
     background: #eaf2fc;
     border-left: 4px solid var(--azul-lascondes);
     padding: 12px 16px;
@@ -279,9 +310,22 @@
     color: var(--texto-oscuro);
     text-align: left;
     margin-bottom: 16px;
-    line-height: 1.6;
+    line-height: 1.8;
   }
-  .destacado-correo strong { color: var(--azul-lascondes); }
+  .destacado-destinatario strong { color: var(--azul-lascondes); }
+
+  .pasos-envio {
+    background: #fff8e6;
+    border-left: 4px solid #f0ad4e;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    text-align: left;
+    color: #7a5a10;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .pasos-envio strong { color: #b8860b; }
 
   #toast {
     position: fixed;
@@ -356,6 +400,15 @@
         · Al terminar se descargará un <strong>documento PDF con tus respuestas</strong><br>
         · Tiempo estimado: <strong>10 minutos</strong>
       </p>
+
+      <!-- ====== AVISO DE ENVÍO ====== -->
+      <div class="aviso-envio">
+        <span class="icono">📤</span><strong>Al finalizar:</strong> debes enviar el PDF generado a
+        <strong>Nelson Vera</strong> por <strong>WhatsApp</strong> o <strong>correo</strong>.
+        <span class="dato">💬 <strong>WhatsApp:</strong> +56 9 6678 3471</span>
+        <span class="dato">📧 <strong>Correo:</strong> nelson.vera@lascondes.cl</span>
+        <span class="dato">📝 <strong>Asunto:</strong> Evaluación GRRD – [Tu nombre]</span>
+      </div>
     </div>
 
     <div class="info-card">
@@ -401,18 +454,29 @@
   <div class="modal">
     <div class="modal-icono">✅</div>
     <h2>¡Evaluación finalizada!</h2>
-    <p>Tu PDF fue generado correctamente.<br>Envíalo al encargado de la siguiente forma:</p>
+    <p>Tu PDF fue generado correctamente.<br>Ahora envíalo a <strong>Nelson Vera</strong>.</p>
 
-    <div class="destacado-correo">
-      📧 <strong>Correo:</strong> rodrigo.arriagada@lascondes.cl<br>
+    <div class="destacado-destinatario">
+      💬 <strong>WhatsApp:</strong> +56 9 6678 3471<br>
+      📧 <strong>Correo:</strong> nelson.vera@lascondes.cl<br>
       📝 <strong>Asunto:</strong> Evaluación GRRD – <span id="nombre-modal"></span>
     </div>
 
     <div class="codigo" id="modal-codigo">—</div>
 
+    <div class="pasos-envio">
+      <strong>📱 Si eliges WhatsApp:</strong><br>
+      1. Presiona el botón verde y se abrirá el chat de Nelson.<br>
+      2. El PDF ya se descargó en tu dispositivo.<br>
+      3. Adjúntalo desde el chat y envíalo.<br><br>
+      <strong>✉️ Si eliges correo:</strong><br>
+      1. Presiona el botón rojo.<br>
+      2. Adjunta el PDF descargado y envíalo.
+    </div>
+
     <div class="modal-botones">
       <button class="btn-download" id="btn-descargar">📥 Descargar PDF nuevamente</button>
-      <button class="btn-share" id="btn-compartir">📤 Compartir por WhatsApp</button>
+      <button class="btn-share" id="btn-compartir">💬 Abrir WhatsApp de Nelson</button>
       <button class="btn-mail" id="btn-mail">✉️ Abrir correo con asunto listo</button>
       <button class="btn-cerrar" id="btn-cerrar-modal">Cerrar</button>
     </div>
@@ -469,7 +533,13 @@ const BANCO_PREGUNTAS = [
 ];
 
 const TOTAL_PREGUNTAS = BANCO_PREGUNTAS.length; // 14
-const CORREO_ENCARGADO = 'rodrigo.arriagada@lascondes.cl';
+
+// ⚠️ DATOS DEL DESTINATARIO
+const CORREO_DESTINATARIO = 'nelson.vera@lascondes.cl';
+const NOMBRE_DESTINATARIO = 'Nelson Vera';
+const WHATSAPP_DESTINATARIO = '56966783471';        // formato internacional sin +
+const WHATSAPP_DESTINATARIO_BONITO = '+56 9 6678 3471'; // para mostrar en pantalla
+
 const LOGO_URL = 'https://i.postimg.cc/MGhWmdq0/LC.jpg';
 
 // ==================== SEMILLA / CORRELATIVO ====================
@@ -712,7 +782,6 @@ async function generarPDFRespuestas() {
   dibujarCabecera(1);
   let y = 42;
 
-  // ===== DATOS DEL EVALUADO =====
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
   doc.setTextColor(80, 90, 110);
@@ -748,7 +817,6 @@ async function generarPDFRespuestas() {
   doc.line(margin, y, pageW - margin, y);
   y += 8;
 
-  // ===== RESPUESTAS =====
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(...azul);
@@ -819,7 +887,7 @@ function generarNombreArchivo() {
   return `Evaluacion_GRRD_${estado.codigo}_${nombreLimpio}.pdf`;
 }
 
-// ==================== DESCARGAR / COMPARTIR ====================
+// ==================== DESCARGAR ====================
 function descargarPDF() {
   if (!estado.pdfBlob) return;
   const link = document.createElement('a');
@@ -829,33 +897,25 @@ function descargarPDF() {
   mostrarToast('📎 PDF descargado');
 }
 
-async function compartirWhatsApp() {
-  if (!estado.pdfBlob) return;
-  const file = new File([estado.pdfBlob], generarNombreArchivo(), { type: 'application/pdf' });
+// ==================== WHATSAPP DE NELSON ====================
+function abrirWhatsApp() {
+  const mensaje = `Hola ${NOMBRE_DESTINATARIO}, adjunto mi evaluación GRRD.
 
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({
-        files: [file],
-        title: `Evaluación GRRD - ${estado.nombre}`,
-        text: `Evaluación GRRD – ${estado.nombre} (${estado.codigo})`
-      });
-      mostrarToast('📤 Enviado');
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error(err);
-        mostrarToast('No se pudo compartir', '#e74c3c');
-      }
-    }
-  } else {
-    mostrarToast('Tu navegador no permite compartir; se descargará', '#f39c12');
-    descargarPDF();
-  }
+Nombre: ${estado.nombre}
+Turno: ${estado.turno || '—'}
+Código: ${estado.codigo}
+
+Saludos.`;
+  const url = `https://wa.me/${WHATSAPP_DESTINATARIO}?text=${encodeURIComponent(mensaje)}`;
+  window.open(url, '_blank');
+
+  mostrarToast('📎 PDF descargado. Adjúntalo en WhatsApp y envía.', '#25D366');
 }
 
+// ==================== CORREO ====================
 function abrirCorreo() {
   const asunto = `Evaluación GRRD – ${estado.nombre}`;
-  const cuerpo = `Estimado Rodrigo,
+  const cuerpo = `Estimado ${NOMBRE_DESTINATARIO},
 
 Adjunto el PDF con mis respuestas de la evaluación GRRD.
 
@@ -864,13 +924,14 @@ Turno: ${estado.turno || '—'}
 Código: ${estado.codigo}
 
 Saludos.`;
-  const url = `mailto:${CORREO_ENCARGADO}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+  const url = `mailto:${CORREO_DESTINATARIO}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
   window.location.href = url;
+  mostrarToast('✉️ Adjunta el PDF descargado y envía', '#EA4335');
 }
 
 // ==================== EVENTOS MODAL ====================
 document.getElementById('btn-descargar').addEventListener('click', descargarPDF);
-document.getElementById('btn-compartir').addEventListener('click', compartirWhatsApp);
+document.getElementById('btn-compartir').addEventListener('click', abrirWhatsApp);
 document.getElementById('btn-mail').addEventListener('click', abrirCorreo);
 document.getElementById('btn-cerrar-modal').addEventListener('click', () => {
   document.getElementById('modal-envio').classList.remove('activo');
@@ -882,7 +943,7 @@ function mostrarToast(msg, color = '#1664c0') {
   t.textContent = msg;
   t.style.background = color;
   t.style.opacity = '1';
-  setTimeout(() => t.style.opacity = '0', 3000);
+  setTimeout(() => t.style.opacity = '0', 3500);
 }
 </script>
 </body>
