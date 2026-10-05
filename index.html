@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<title>Evaluación de Conocimiento - GRRD</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --azul-lascondes: #1664c0;
+    --azul-claro: #4087cf;
+    --gris-fondo: #f5f7fc;
+    --blanco: #ffffff;
+    --texto-oscuro: #1a2634;
+    --texto-gris: #4a5a6e;
+    --borde-suave: #e2e8f0;
+    --accent-teal: #2c9e8c;
+    --error-rojo: #e74c3c;
+    --verde-exito: #27ae60;
+  }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', 'Arial', sans-serif;
+    background: var(--gris-fondo);
+    color: var(--texto-oscuro);
+    min-height: 100vh;
+    padding: 0 0 40px 0;
+  }
+
+  .header {
+    background: linear-gradient(135deg, var(--azul-lascondes) 0%, #0f4a8a 100%);
+    border-bottom: 2px solid rgba(255,255,255,0.2);
+    padding: 12px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .logo-muni { display: flex; align-items: center; gap: 10px; }
+  .logo-icono {
+    width: 55px; height: 45px;
+    background: var(--blanco);
+    border-radius: 20%;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .logo-icono img { width: 100%; height: 100%; object-fit: cover; }
+  .logo-texto {
+    font-weight: 700; font-size: 12px; letter-spacing: 0.5px;
+    color: white; line-height: 1.3;
+  }
+  .logo-texto small { font-size: 9px; font-weight: normal; opacity: 0.9; display: block; }
+
+  .title-stack { text-align: right; }
+  .title-emergencia {
+    font-size: 14px; font-weight: 800;
+    color: white; letter-spacing: 1px;
+  }
+  .title-emergencia small {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    opacity: 0.85;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+  }
+
+  .container { max-width: 800px; margin: 0 auto; padding: 20px 16px; }
+
+  .info-card {
+    background: var(--blanco);
+    border-radius: 18px;
+    padding: 18px 20px;
+    border: 1px solid var(--borde-suave);
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.05);
+  }
+  .info-card h2 {
+    font-size: 12px;
+    color: var(--azul-lascondes);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    font-weight: 800;
+    border-left: 3px solid var(--azul-lascondes);
+    padding-left: 12px;
+  }
+  .info-card p { font-size: 13px; color: var(--texto-gris); line-height: 1.6; }
+
+  .form-row { margin-bottom: 14px; }
+  .form-row label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--texto-gris);
+    margin-bottom: 6px;
+  }
+  .form-row input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--borde-suave);
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 15px;
+    outline: none;
+    transition: 0.2s;
+    background: #ffffff;
+  }
+  .form-row input:focus {
+    border-color: var(--azul-lascondes);
+    box-shadow: 0 0 0 3px rgba(22,100,192,0.15);
+  }
+
+  .codigo-badge {
+    display: inline-block;
+    background: rgba(22,100,192,0.1);
+    color: var(--azul-lascondes);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 8px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--azul-lascondes); color: white; }
+  .btn-primary:hover:not(:disabled) { background: #0f4a8a; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .pregunta {
+    background: var(--blanco);
+    border-radius: 18px;
+    padding: 18px 20px;
+    border: 1px solid var(--borde-suave);
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.05);
+  }
+  .pregunta-num {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--azul-lascondes);
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    margin-bottom: 8px;
+  }
+  .pregunta-texto {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--texto-oscuro);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .opcion {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--borde-suave);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: 0.15s;
+    font-size: 14px;
+    line-height: 1.4;
+    background: #ffffff;
+  }
+  .opcion:hover { border-color: var(--azul-lascondes); background: #f8faff; }
+  .opcion input { margin-top: 2px; accent-color: var(--azul-lascondes); flex-shrink: 0; }
+  .opcion.seleccionada {
+    border-color: var(--azul-lascondes);
+    background: #eaf2fc;
+  }
+  .opcion .letra {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    background: var(--azul-lascondes);
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 22px;
+    flex-shrink: 0;
+  }
+
+  .oculto { display: none; }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.activo { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 24px;
+    padding: 28px 24px;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  }
+  .modal-icono { font-size: 52px; margin-bottom: 12px; }
+  .modal h2 { font-size: 20px; color: var(--azul-lascondes); margin-bottom: 8px; }
+  .modal p {
+    font-size: 14px;
+    color: var(--texto-gris);
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  .modal .codigo {
+    background: #f1f5fb;
+    padding: 10px;
+    border-radius: 10px;
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--azul-lascondes);
+    margin-bottom: 20px;
+    word-break: break-all;
+  }
+  .modal-botones {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .btn-download, .btn-share, .btn-mail, .btn-cerrar {
+    padding: 14px;
+    border: none;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    font-family: inherit;
+    color: white;
+  }
+  .btn-download { background: var(--azul-lascondes); }
+  .btn-share { background: #25D366; }
+  .btn-mail { background: #EA4335; }
+  .btn-cerrar { background: #e2e8f0; color: var(--texto-oscuro); font-size: 14px; }
+
+  .destacado-correo {
+    background: #eaf2fc;
+    border-left: 4px solid var(--azul-lascondes);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--texto-oscuro);
+    text-align: left;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+  .destacado-correo strong { color: var(--azul-lascondes); }
+
+  #toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--azul-lascondes);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 40px;
+    opacity: 0;
+    transition: 0.3s;
+    pointer-events: none;
+    z-index: 300;
+    font-size: 13px;
+    max-width: 90%;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  @media (max-width: 600px) {
+    .header-top { justify-content: center; text-align: center; }
+    .logo-muni { justify-content: center; }
+    .title-stack { text-align: center; width: 100%; }
+    .title-emergencia { font-size: 12px; }
+    .container { padding: 12px; }
+    .pregunta { padding: 14px 16px; }
+    .pregunta-texto { font-size: 14px; }
+    .opcion { font-size: 13px; padding: 10px 12px; }
+    .logo-icono { width: 48px; height: 40px; }
+    .logo-texto { font-size: 10px; }
+    .logo-texto small { font-size: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo-muni">
+      <div class="logo-icono">
+        <img src="https://i.postimg.cc/MGhWmdq0/LC.jpg" alt="Municipalidad de Las Condes">
+      </div>
+      <div class="logo-texto">
+        MUNICIPALIDAD DE LAS CONDES<br>
+        <small>Depto. Gestión de Riesgos y Desastres</small>
+      </div>
+    </div>
+    <div class="title-stack">
+      <div class="title-emergencia">
+        EVALUACIÓN DE CONOCIMIENTO
+        <small>Informe de Emergencia GRRD</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ============ PANTALLA DE INICIO ============ -->
+  <div id="pantalla-inicio">
+    <div class="info-card">
+      <h2>Instrucciones</h2>
+      <p>
+        Esta evaluación permite verificar los conocimientos básicos sobre el uso
+        de la aplicación web para generar informes de emergencia del
+        Depto. de Gestión de Riesgos y Desastres.
+      </p>
+      <p style="margin-top:10px;">
+        · <strong>14 preguntas</strong> de selección múltiple<br>
+        · Cada pregunta vale <strong>1 punto</strong><br>
+        · Al terminar se descargará un <strong>documento PDF con tus respuestas</strong><br>
+        · Tiempo estimado: <strong>10 minutos</strong>
+      </p>
+    </div>
+
+    <div class="info-card">
+      <h2>Identificación</h2>
+      <div class="form-row">
+        <label>Nombre completo *</label>
+        <input type="text" id="nombre-operador" placeholder="Ej: Juan Pérez González" autocomplete="off">
+      </div>
+      <div class="form-row">
+        <label>Turno / Grupo</label>
+        <input type="text" id="turno-operador" placeholder="Ej: Turno A, Grupo 2..." autocomplete="off">
+      </div>
+      <div id="codigo-badge-container"></div>
+    </div>
+
+    <button class="btn btn-primary" id="btn-comenzar" disabled>Comenzar evaluación</button>
+  </div>
+
+  <!-- ============ PANTALLA DE PREGUNTAS ============ -->
+  <div id="pantalla-prueba" class="oculto">
+    <div class="info-card" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <div>
+        <h2 style="margin-bottom:2px;">Evaluado: <span id="mostrar-nombre" style="text-transform:none; letter-spacing:0;"></span></h2>
+        <p style="font-size:12px;">Código: <strong id="mostrar-codigo"></strong></p>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:12px; color:var(--texto-gris);">Progreso</div>
+        <div style="font-size:18px; font-weight:800; color:var(--azul-lascondes);">
+          <span id="contador">0</span> / 14
+        </div>
+      </div>
+    </div>
+
+    <div id="preguntas-container"></div>
+
+    <button class="btn btn-primary" id="btn-finalizar" disabled>Finalizar y generar PDF</button>
+  </div>
+
+</div>
+
+<!-- ============ MODAL POST-ENVÍO ============ -->
+<div class="modal-overlay" id="modal-envio">
+  <div class="modal">
+    <div class="modal-icono">✅</div>
+    <h2>¡Evaluación finalizada!</h2>
+    <p>Tu PDF fue generado correctamente.<br>Envíalo al encargado de la siguiente forma:</p>
+
+    <div class="destacado-correo">
+      📧 <strong>Correo:</strong> rodrigo.arriagada@lascondes.cl<br>
+      📝 <strong>Asunto:</strong> Evaluación GRRD – <span id="nombre-modal"></span>
+    </div>
+
+    <div class="codigo" id="modal-codigo">—</div>
+
+    <div class="modal-botones">
+      <button class="btn-download" id="btn-descargar">📥 Descargar PDF nuevamente</button>
+      <button class="btn-share" id="btn-compartir">📤 Compartir por WhatsApp</button>
+      <button class="btn-mail" id="btn-mail">✉️ Abrir correo con asunto listo</button>
+      <button class="btn-cerrar" id="btn-cerrar-modal">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast">✅ Listo</div>
+
+<script>
+// ==================== BANCO DE PREGUNTAS (14) ====================
+const BANCO_PREGUNTAS = [
+  { p: "¿Cuál es el objetivo principal de la aplicación web?",
+    correcta: "Generar informes de emergencia para el Depto. de Gestión de Riesgos y Desastres",
+    distractores: ["Registrar mascotas perdidas en la comuna", "Solicitar permisos de construcción", "Pagar patentes municipales"] },
+  { p: "¿Qué tipo de documento genera la aplicación al finalizar el registro?",
+    correcta: "Un informe de emergencia en formato PDF",
+    distractores: ["Una boleta electrónica", "Un certificado de residencia", "Una multa de tránsito"] },
+  { p: "¿Cuáles son los campos obligatorios para generar el informe?",
+    correcta: "Procedimiento, N° Procedimiento, Fecha, Hora y Dirección",
+    distractores: ["Solo la descripción", "Solo el nombre del afectado", "Ninguno, todos son opcionales"] },
+  { p: "¿Cómo se selecciona el tipo de procedimiento (ej: 'Incendio estructural')?",
+    correcta: "Buscando en una lista desplegable que filtra mientras escribe",
+    distractores: ["Escribiendo libremente en un cuadro de texto", "Marcando una casilla de verificación", "No se puede seleccionar"] },
+  { p: "Al agregar una persona como 'LESIONADO', ¿qué dato adicional se puede registrar?",
+    correcta: "Los tipos de lesión (múltiple) y una foto carnet",
+    distractores: ["Su número de teléfono", "Su correo electrónico", "Su lugar de trabajo"] },
+  { p: "¿Qué se debe hacer para seleccionar más de un tipo de lesión en un lesionado?",
+    correcta: "Hacer clic en cada chip (etiqueta) que corresponda",
+    distractores: ["Solo se puede seleccionar una", "Mantener presionada la tecla Shift", "Escribirlos separados por coma"] },
+  { p: "¿Qué información se debe ingresar en el campo 'N° Procedimiento'?",
+    correcta: "El número único que identifica el procedimiento (ej: 3458637)",
+    distractores: ["El RUT del afectado", "El número de teléfono de emergencia", "El código postal de la comuna"] },
+  { p: "La sección 'Recursos Asignados' permite registrar:",
+    correcta: "Seguridad Pública, Tránsito, Carabineros, Bomberos, Emergencias, CMU, Ambulancias y Profesional Médico",
+    distractores: ["Solo Carabineros y Bomberos", "Únicamente ambulancias", "Solo el nombre del operador CMU"] },
+  { p: "¿Cómo se registra la participación de una Dirección Municipal (ej: Parques y Jardines)?",
+    correcta: "Marcando el chip correspondiente en la sección 'Direcciones Municipales Participantes'",
+    distractores: ["Escribiendo su nombre en un campo de texto", "No se puede registrar", "Llamando por teléfono al municipio"] },
+  { p: "Si en 'Ambulancia(s)' se selecciona la opción 'Otras', ¿qué debe hacer?",
+    correcta: "Especificar el nombre de la ambulancia en el campo que aparece",
+    distractores: ["No hacer nada más", "Cancelar el informe", "Seleccionar otra opción diferente"] },
+  { p: "¿Qué opciones de acciones se presentan después de generar el PDF?",
+    correcta: "Guardar en el celular, Compartir, Enviar por correo a Rodrigo, Copiar texto y Cerrar",
+    distractores: ["Solo cerrar la aplicación", "Imprimir directamente sin opciones", "Enviar por fax"] },
+  { p: "¿Qué campo de la sección 'Características de la vía' permite indicar si el tránsito está 'Cortado', 'Desvío' o 'Habilitado'?",
+    correcta: "Condición del tránsito",
+    distractores: ["Calzada / Acera", "Pistas", "Dirección"] },
+  { p: "La fecha y hora del informe se cargan automáticamente al abrir la aplicación. ¿Es posible modificarlas?",
+    correcta: "Sí, se pueden editar manualmente en los campos correspondientes",
+    distractores: ["No, son fijas", "Solo la fecha", "Solo la hora"] },
+  { p: "¿Qué tipo de personas se pueden agregar en la sección 'Datos Personales'?",
+    correcta: "Lesionados, Propietarios y Afectados",
+    distractores: ["Solo lesionados", "Solo propietarios", "Solo funcionarios municipales"] }
+];
+
+const TOTAL_PREGUNTAS = BANCO_PREGUNTAS.length; // 14
+const CORREO_ENCARGADO = 'rodrigo.arriagada@lascondes.cl';
+const LOGO_URL = 'https://i.postimg.cc/MGhWmdq0/LC.jpg';
+
+// ==================== SEMILLA / CORRELATIVO ====================
+function obtenerSemilla() {
+  const params = new URLSearchParams(window.location.search);
+  let id = params.get('id');
+  if (!id) id = Math.floor(Math.random() * 100000);
+  return parseInt(id, 10) || 1;
+}
+function crearRandom(semilla) {
+  let a = semilla >>> 0;
+  return function() {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function barajar(arr, rnd) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function generarExamen(semilla) {
+  const rnd = crearRandom(semilla * 7919 + 1013);
+  const preguntasBarajadas = barajar(BANCO_PREGUNTAS, rnd);
+  const examen = preguntasBarajadas.map((item, idx) => {
+    const opciones = barajar(
+      [{ texto: item.correcta, correcta: true },
+       ...item.distractores.map(d => ({ texto: d, correcta: false }))],
+      rnd
+    );
+    return {
+      numero: idx + 1,
+      pregunta: item.p,
+      opciones: opciones
+    };
+  });
+  const letras = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const codigo = `GRRD-${letras[semilla % 24]}${letras[(semilla * 3) % 24]}-${String(semilla).padStart(3, '0')}`;
+  return { examen, codigo, semilla };
+}
+
+// ==================== ESTADO ====================
+const semilla = obtenerSemilla();
+const generado = generarExamen(semilla);
+let estado = {
+  examen: generado.examen,
+  codigo: generado.codigo,
+  semilla: semilla,
+  nombre: '',
+  turno: '',
+  respuestas: {},
+  inicio: null,
+  fin: null,
+  pdfBlob: null,
+  logoBase64: null
+};
+
+document.getElementById('codigo-badge-container').innerHTML =
+  `<div class="codigo-badge">🔐 Código asignado: ${estado.codigo}</div>`;
+
+// ==================== PRECARGA DEL LOGO ====================
+async function precargarLogo() {
+  try {
+    const resp = await fetch(LOGO_URL);
+    const blob = await resp.blob();
+    estado.logoBase64 = await new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  } catch (e) {
+    console.warn('No se pudo precargar logo:', e);
+  }
+}
+precargarLogo();
+
+// ==================== VALIDACIÓN INICIO ====================
+const inputNombre = document.getElementById('nombre-operador');
+const inputTurno = document.getElementById('turno-operador');
+const btnComenzar = document.getElementById('btn-comenzar');
+function validarInicio() {
+  btnComenzar.disabled = inputNombre.value.trim().length < 3;
+}
+inputNombre.addEventListener('input', validarInicio);
+
+// ==================== COMENZAR ====================
+btnComenzar.addEventListener('click', () => {
+  estado.nombre = inputNombre.value.trim();
+  estado.turno = inputTurno.value.trim();
+  estado.inicio = new Date();
+
+  document.getElementById('mostrar-nombre').textContent = estado.nombre;
+  document.getElementById('mostrar-codigo').textContent = estado.codigo;
+
+  document.getElementById('pantalla-inicio').classList.add('oculto');
+  document.getElementById('pantalla-prueba').classList.remove('oculto');
+
+  renderizarPreguntas();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ==================== RENDER PREGUNTAS ====================
+function renderizarPreguntas() {
+  const cont = document.getElementById('preguntas-container');
+  cont.innerHTML = '';
+  const letras = ['A', 'B', 'C', 'D'];
+
+  estado.examen.forEach((q) => {
+    const div = document.createElement('div');
+    div.className = 'pregunta';
+    div.id = `preg-${q.numero}`;
+
+    let opcionesHTML = '';
+    q.opciones.forEach((op, i) => {
+      opcionesHTML += `
+        <label class="opcion" data-preg="${q.numero}" data-idx="${i}">
+          <input type="radio" name="preg-${q.numero}" value="${i}">
+          <span class="letra">${letras[i]}</span>
+          <span>${op.texto}</span>
+        </label>
+      `;
+    });
+
+    div.innerHTML = `
+      <div class="pregunta-num">Pregunta ${q.numero} de ${TOTAL_PREGUNTAS}</div>
+      <div class="pregunta-texto">${q.pregunta}</div>
+      <div>${opcionesHTML}</div>
+    `;
+    cont.appendChild(div);
+  });
+
+  cont.querySelectorAll('input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      const pregNum = parseInt(e.target.name.replace('preg-', ''), 10);
+      estado.respuestas[pregNum] = parseInt(e.target.value, 10);
+      const card = document.getElementById(`preg-${pregNum}`);
+      card.querySelectorAll('.opcion').forEach(op => op.classList.remove('seleccionada'));
+      e.target.closest('.opcion').classList.add('seleccionada');
+      actualizarProgreso();
+    });
+  });
+
+  actualizarProgreso();
+}
+
+function actualizarProgreso() {
+  const total = Object.keys(estado.respuestas).length;
+  document.getElementById('contador').textContent = total;
+  const btnFin = document.getElementById('btn-finalizar');
+  btnFin.disabled = total < TOTAL_PREGUNTAS;
+  btnFin.textContent = total < TOTAL_PREGUNTAS
+    ? `Finalizar y generar PDF (faltan ${TOTAL_PREGUNTAS - total})`
+    : 'Finalizar y generar PDF';
+}
+
+// ==================== FINALIZAR ====================
+document.getElementById('btn-finalizar').addEventListener('click', async (e) => {
+  if (Object.keys(estado.respuestas).length < TOTAL_PREGUNTAS) {
+    mostrarToast('Debes responder todas las preguntas', '#e74c3c');
+    return;
+  }
+  if (!confirm('¿Finalizar la evaluación? Ya no podrás cambiar tus respuestas.')) return;
+
+  estado.fin = new Date();
+
+  const btn = e.target;
+  const original = btn.textContent;
+  btn.disabled = true;
+  btn.innerHTML = 'Generando PDF...';
+
+  try {
+    if (!estado.logoBase64) {
+      await precargarLogo();
+    }
+    await generarPDFRespuestas();
+    descargarPDF();
+    document.getElementById('pantalla-prueba').classList.add('oculto');
+    document.getElementById('nombre-modal').textContent = estado.nombre;
+    document.getElementById('modal-codigo').textContent = 'Código: ' + estado.codigo;
+    document.getElementById('modal-envio').classList.add('activo');
+  } catch (err) {
+    console.error(err);
+    mostrarToast('Error al generar PDF', '#e74c3c');
+    btn.disabled = false;
+    btn.textContent = original;
+  }
+});
+
+// ==================== GENERAR PDF ====================
+async function generarPDFRespuestas() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'legal', orientation: 'portrait' });
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 18;
+  const azul = [22, 100, 192];
+
+  let pageNum = 1;
+
+  function dibujarCabecera(pag) {
+    doc.setFillColor(...azul);
+    doc.rect(0, 0, pageW, 32, 'F');
+
+    if (estado.logoBase64) {
+      try {
+        doc.addImage(estado.logoBase64, 'JPEG', 8, 5, 20, 16, undefined, 'FAST');
+      } catch(e) { console.warn('Error logo:', e); }
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(255, 255, 255);
+    doc.text('MUNICIPALIDAD DE LAS CONDES', 33, 12);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(220, 225, 240);
+    doc.text('Depto. Gestión de Riesgos y Desastres', 33, 17);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+    doc.text('EVALUACIÓN DE CONOCIMIENTO', pageW / 2, 25, { align: 'center' });
+
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(220, 225, 240);
+    doc.text('Informe de Emergencia GRRD', pageW / 2, 29.5, { align: 'center' });
+
+    doc.setFontSize(7);
+    doc.setTextColor(255, 255, 255);
+    doc.text(`Pág. ${pag}`, pageW - 10, 8, { align: 'right' });
+  }
+
+  dibujarCabecera(1);
+  let y = 42;
+
+  // ===== DATOS DEL EVALUADO =====
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(80, 90, 110);
+  doc.text('DATOS DEL EVALUADO', margin, y);
+  y += 4;
+  doc.setDrawColor(180, 180, 200);
+  doc.line(margin, y, pageW - margin, y);
+  y += 5;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
+  doc.setTextColor(40, 50, 70);
+
+  const duracion = Math.round((estado.fin - estado.inicio) / 1000 / 60);
+  const campos = [
+    ['Nombre:', estado.nombre],
+    ['Turno / Grupo:', estado.turno || '—'],
+    ['Código de evaluación:', estado.codigo],
+    ['Fecha:', new Date().toLocaleString('es-CL')],
+    ['Duración:', `${duracion} minuto(s)`],
+    ['Total preguntas:', String(TOTAL_PREGUNTAS)]
+  ];
+  campos.forEach(([k, v]) => {
+    doc.setFont('helvetica', 'bold');
+    doc.text(k, margin, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(String(v), margin + 45, y);
+    y += 5;
+  });
+
+  y += 4;
+  doc.setDrawColor(180, 180, 200);
+  doc.line(margin, y, pageW - margin, y);
+  y += 8;
+
+  // ===== RESPUESTAS =====
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10);
+  doc.setTextColor(...azul);
+  doc.text('RESPUESTAS', margin, y);
+  y += 7;
+
+  const letras = ['A', 'B', 'C', 'D'];
+
+  for (const q of estado.examen) {
+    if (y > pageH - 40) {
+      doc.addPage();
+      pageNum++;
+      dibujarCabecera(pageNum);
+      y = 42;
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(40, 50, 70);
+    const pregWrap = doc.splitTextToSize(`${q.numero}. ${q.pregunta}`, pageW - margin * 2);
+    doc.text(pregWrap, margin, y);
+    y += pregWrap.length * 4 + 2;
+
+    const idxResp = estado.respuestas[q.numero];
+    const respTexto = idxResp !== undefined
+      ? `${letras[idxResp]}. ${q.opciones[idxResp].texto}`
+      : 'Sin respuesta';
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(22, 100, 192);
+    doc.text('Respuesta:', margin + 4, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(40, 50, 70);
+    const respWrap = doc.splitTextToSize(respTexto, pageW - margin * 2 - 32);
+    doc.text(respWrap, margin + 32, y);
+    y += Math.max(4.5, respWrap.length * 3.5) + 5;
+
+    doc.setDrawColor(230, 230, 240);
+    doc.line(margin, y - 2, pageW - margin, y - 2);
+    y += 2;
+  }
+
+  if (y > pageH - 25) {
+    doc.addPage();
+    pageNum++;
+    dibujarCabecera(pageNum);
+    y = 42;
+  }
+  y += 4;
+  doc.setFontSize(7.5);
+  doc.setTextColor(120, 130, 150);
+  doc.text(
+    `Documento generado automáticamente. Código: ${estado.codigo}`,
+    pageW / 2, pageH - 12, { align: 'center' }
+  );
+
+  estado.pdfBlob = doc.output('blob');
+}
+
+// ==================== NOMBRE DEL ARCHIVO ====================
+function generarNombreArchivo() {
+  const nombreLimpio = estado.nombre
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]/g, '_')
+    .replace(/_+/g, '_')
+    .substring(0, 40);
+  return `Evaluacion_GRRD_${estado.codigo}_${nombreLimpio}.pdf`;
+}
+
+// ==================== DESCARGAR / COMPARTIR ====================
+function descargarPDF() {
+  if (!estado.pdfBlob) return;
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(estado.pdfBlob);
+  link.download = generarNombreArchivo();
+  link.click();
+  mostrarToast('📎 PDF descargado');
+}
+
+async function compartirWhatsApp() {
+  if (!estado.pdfBlob) return;
+  const file = new File([estado.pdfBlob], generarNombreArchivo(), { type: 'application/pdf' });
+
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: `Evaluación GRRD - ${estado.nombre}`,
+        text: `Evaluación GRRD – ${estado.nombre} (${estado.codigo})`
+      });
+      mostrarToast('📤 Enviado');
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error(err);
+        mostrarToast('No se pudo compartir', '#e74c3c');
+      }
+    }
+  } else {
+    mostrarToast('Tu navegador no permite compartir; se descargará', '#f39c12');
+    descargarPDF();
+  }
+}
+
+function abrirCorreo() {
+  const asunto = `Evaluación GRRD – ${estado.nombre}`;
+  const cuerpo = `Estimado Rodrigo,
+
+Adjunto el PDF con mis respuestas de la evaluación GRRD.
+
+Nombre: ${estado.nombre}
+Turno: ${estado.turno || '—'}
+Código: ${estado.codigo}
+
+Saludos.`;
+  const url = `mailto:${CORREO_ENCARGADO}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+  window.location.href = url;
+}
+
+// ==================== EVENTOS MODAL ====================
+document.getElementById('btn-descargar').addEventListener('click', descargarPDF);
+document.getElementById('btn-compartir').addEventListener('click', compartirWhatsApp);
+document.getElementById('btn-mail').addEventListener('click', abrirCorreo);
+document.getElementById('btn-cerrar-modal').addEventListener('click', () => {
+  document.getElementById('modal-envio').classList.remove('activo');
+});
+
+// ==================== TOAST ====================
+function mostrarToast(msg, color = '#1664c0') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color;
+  t.style.opacity = '1';
+  setTimeout(() => t.style.opacity = '0', 3000);
+}
+</script>
+</body>
+</html>
